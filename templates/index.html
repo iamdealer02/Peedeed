@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        .body{
+            background-color: rgb(207, 196, 181);
+        }
+        .container{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .sidebar{
+           background-color: rgb(216, 176, 176);
+        }
+        a{
+            color: rgb(89, 89, 89);
+        }
+    </style>
+
+</head>
+<body>
+    <nav class="navbar navbar-expand">
+        <a class="navbar-brand m-auto" href="#"><img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" height="30px"></a>
+        <form class="form-inline ml-auto">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">
+                    <i class="fa fa-search"></i>
+                </span>
+              </div>
+              <input type="text" class="form-control input-group" placeholder="Search by title, skill or Company" aria-label="Username" aria-describedby="basic-addon1">
+            </div>
+          </form>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    
+                    <a class="nav-link ml-5" href="#">
+                        <i class="fa fa-home"></i> <br>
+                        Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link ml-5" href="#">
+                        <i class="fa fa-people-arrows"></i> <br>
+                        About</a>
+                </li>
+                <li class="nav-item">
+                    
+                    <a class="nav-link ml-5" href="#">
+                        <i class="fa fa-suitcase"></i> <br>
+                        Jobs</a>
+                </li>
+                <li class="nav-item">
+                    
+                    <a class="nav-link ml-5" href="#">
+                        <i class="fa fa-people-arrows"></i> <br>
+                        My Network</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <div class="sidebar">
+            
+        </div>
+        <div class="center_body">
+          
+        </div>
+        <div class="recommendation">
+            
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

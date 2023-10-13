@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/country-select-js/2.0.3/css/countrySelect.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        a{
+            color: rgb(89, 89, 89);
+        }
+
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="main-body">
+            <nav class="navbar navbar-expand">
+                <a class="navbar-brand" href="#"><img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" height="30px"></a>
+                <form class="form-inline" action="./jobfilter" method="post" >
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <button type="submit" class="btn btn-light">
+                            <span class="input-group-text" id="basic-addon1">
+                                <i class="fa fa-search"></i>
+                            </span>
+                        </button>
+        
+                      </div>
+                      <input type="text" class="form-control input-group" name="title" placeholder="Search by title, skill or Company"  aria-describedby="basic-addon1">
+        
+                    
+        
+                    </div>
+                  </form>
+                  
+        
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item active">
+                            
+                            <a class="nav-link ml-5" href="#">
+                                <i class="fa fa-home"></i> <br>
+                                Home <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link ml-5" href="#">
+                                <i class="fa fa-people-arrows"></i> <br>
+                                About</a>
+                        </li>
+                        <li class="nav-item">
+                            
+                            <a class="nav-link ml-5" href="#">
+                                <i class="fa fa-suitcase"></i> <br>
+                                Jobs</a>
+                        </li>
+                        <li class="nav-item">
+                            
+                            <a class="nav-link ml-5" href="#">
+                                <i class="fa fa-people-arrows"></i> <br>
+                                My Network</a>
+                        </li>
+                    </ul>
+                </div> 
+            </nav>
+              <!-- Breadcrumb -->
+              <nav aria-label="breadcrumb" class="main-breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{{url_for('homepage')}}">Home</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Jobs</li>
+                </ol>
+              </nav>
+              <!-- /Breadcrumb -->
+              <div class="card mb-3">
+                <div class="card-body">
+                    <!-- Adjust the HTML structure to properly spread the jobs across the card -->
+                    {% for i in range(0, length) %}
+                        {% for job in jobs[i]['response'] %}
+                            <div class="row mb-3">
+                                <div class="col-sm-12">
+                                    <div class="card ">
+                                        <div class="card-body">
+                                            <p> <h3 class="h3">{{ job.company.display_name }}</h3></p>
+                                            <p>JOB TITLE: {{ job.title }}</p>
+                                            <p>LOCATIONS: {{ job.location.area | join(', ') }}</p>
+                                            <a href="{{ job.redirect_url }}">
+                                                <button class="btn btn-light">DETAILS</button>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+           
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Country-Select JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/country-select-js/2.0.3/js/countrySelect.min.js"></script>
+<!-- ... (Your existing HTML code) ... -->
+
+<script>
+    $(document).ready(function() {
+        // Initialize the country-select plugin
+        $('#countrySelect').countrySelect();
+
+        // Set a default country or take other actions here if needed
+
+        // Handle form submission
+        $('form').submit(function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            // Get the selected country value
+            var selectedCountry = $('#countrySelect').countrySelect('getSelectedCountryData');
+
+            // Add the selected country value to the form data
+            $('form').append('<input type="hidden" name="selected_country" value="' + selectedCountry.iso2 + '">');
+
+            // Now submit the form
+            $('form')[0].submit();
+        });
+    });
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            document.getElementById("demo").innerHTML = "Geolocation is not supported by this browser.";
+        }
+    }
+
+    function showPosition(position) {
+        var latitude = position.coords.latitude;
+        var longitude = position.coords.longitude;
+
+        // Send the coordinates to a reverse geocoding service to get the country
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+            .then(response => response.json())
+            .then(data => {
+                var country = data.address.country;
+                console.log(country)
+    
+                var countrySelect = document.getElementById("countrySelect");
+
+                // Loop through the options and select the one with the matching value
+                for (var i = 0; i < countrySelect.options.length; i++) {
+                    if (countrySelect.options[i].value === country) {
+                        countrySelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching and parsing data: " + error);
+                document.getElementById("demo").innerHTML = "Could not determine your country.";
+            });
+    }
+
+    function showError(error) {
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                document.getElementById("demo").innerHTML = "User denied the request for Geolocation.";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                document.getElementById("demo").innerHTML = "Location information is unavailable.";
+                break;
+            case error.TIMEOUT:
+                document.getElementById("demo").innerHTML = "The request to get user location timed out.";
+                break;
+            case error.UNKNOWN_ERROR:
+                document.getElementById("demo").innerHTML = "An unknown error occurred.";
+                break;
+        }
+    }
+</script>
+</body>
+</html>
