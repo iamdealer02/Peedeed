@@ -78,29 +78,49 @@
                 </ol>
               </nav>
               <!-- /Breadcrumb -->
-              <div class="card mb-3">
-                <div class="card-body">
-                    <!-- Adjust the HTML structure to properly spread the jobs across the card -->
-                    {% for i in range(0, length) %}
-                        {% for job in jobs[i]['response'] %}
+              <div class="jobs-card d-flex flex-row">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        {% for jobs in jobs_db %}
                             <div class="row mb-3">
                                 <div class="col-sm-12">
-                                    <div class="card ">
-                                        <div class="card-body">
-                                            <p> <h3 class="h3">{{ job.company.display_name }}</h3></p>
-                                            <p>JOB TITLE: {{ job.title }}</p>
-                                            <p>LOCATIONS: {{ job.location.area | join(', ') }}</p>
-                                            <a href="{{ job.redirect_url }}">
-                                                <button class="btn btn-light">DETAILS</button>
-                                            </a>
+                                    <div class="card" id="{{jobs._id}}">
+                                        <div class="card-body ">
+                                            <p> <h3 class="h3">{{ jobs.company}}</h3></p>
+                                            <p>JOB TITLE: {{ jobs.position }}</p>
+                                            <p>LOCATIONS:
+                                            {% for location in jobs.location %}
+                                             {{ location}}
+                                             {% endfor %}
+                                            </p>
+                                   
+                                                <button onclick="DisplayDetails('{{jobs._id}}')" class="btn btn-light">DETAILS</button>  
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         {% endfor %}
-                    {% endfor %}
+                        <!-- Adjust the HTML structure to properly spread the jobs across the card -->
+                        {% for i in range(0, length) %}
+                            {% for job in jobs[i]['response'] %}
+                                <div class="row mb-3">
+                                    <div class="col-sm-12">
+                                        <div class="card ">
+                                            <div class="card-body">
+                                                <p> <h3 class="h3">{{ job.company.display_name }}</h3></p>
+                                                <p>JOB TITLE: {{ job.title }}</p>
+                                                <p>LOCATIONS: {{ job.location.area | join(', ') }}</p>
+                                                <a href="{{ job.redirect_url }}">
+                                                    <button class="btn btn-light">DETAILS</button>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
         </div>
     </div>
 
@@ -117,77 +137,52 @@
 <!-- ... (Your existing HTML code) ... -->
 
 <script>
-    $(document).ready(function() {
-        // Initialize the country-select plugin
-        $('#countrySelect').countrySelect();
+    function DisplayDetails(id) {
 
-        // Set a default country or take other actions here if needed
+        console.log(id);
+        // send a post request to the server
+        $.ajax({
+            type: "POST",
+            url: "/jobdetails",
+            data: {
+                id: id
+            },
+            
+            success: function (response) {
+                var jobdiv= document.getElementById(id);
+                jobdiv.classList.add("border-info");
+           
 
-        // Handle form submission
-        $('form').submit(function(e) {
-            e.preventDefault(); // Prevent the default form submission
-
-            // Get the selected country value
-            var selectedCountry = $('#countrySelect').countrySelect('getSelectedCountryData');
-
-            // Add the selected country value to the form data
-            $('form').append('<input type="hidden" name="selected_country" value="' + selectedCountry.iso2 + '">');
-
-            // Now submit the form
-            $('form')[0].submit();
-        });
-    });
-
-    function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition, showError);
-        } else {
-            document.getElementById("demo").innerHTML = "Geolocation is not supported by this browser.";
-        }
-    }
-
-    function showPosition(position) {
-        var latitude = position.coords.latitude;
-        var longitude = position.coords.longitude;
-
-        // Send the coordinates to a reverse geocoding service to get the country
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
-            .then(response => response.json())
-            .then(data => {
-                var country = data.address.country;
-                console.log(country)
-    
-                var countrySelect = document.getElementById("countrySelect");
-
-                // Loop through the options and select the one with the matching value
-                for (var i = 0; i < countrySelect.options.length; i++) {
-                    if (countrySelect.options[i].value === country) {
-                        countrySelect.selectedIndex = i;
-                        break;
-                    }
+                // response is a JSON object
+                console.log(this);
+                const data = response.data[0];
+                // select the card body element
+                var jobs_card = $('.jobs-card');
+                // create a new division
+                var new_division = '<div class="card mb-3 ml-3" style="max-width: 25rem;"><div class="card-body"></div></div>';
+                // add this div to jobs_card only if it doesn't exist 
+                if (jobs_card.find('.card.mb-3.ml-3').length === 0) {
+                    jobs_card.append(new_division);
+                } else {
+                    // remove the division
+                    jobs_card.find('.card.mb-3.ml-3').remove();
+                    var jobdiv= document.getElementById(id);
+                    //remove the style
+                    jobdiv.classList.remove("border-info");
                 }
-            })
-            .catch(error => {
-                console.error("Error fetching and parsing data: " + error);
-                document.getElementById("demo").innerHTML = "Could not determine your country.";
-            });
-    }
+                
+                // append the company,position,location and description to the card body
+                jobs_card.find('.card.mb-3.ml-3').find('.card-body').append('<p><strong>Title:</strong> ' + data.company + '</p>');
+                jobs_card.find('.card.mb-3.ml-3').find('.card-body').append('<p><strong>Position:</strong> ' + data.position + '</p>');
+                jobs_card.find('.card.mb-3.ml-3').find('.card-body').append('<p><strong>Location:</strong> ' + data.location + '</p>');
+                jobs_card.find('.card.mb-3.ml-3').find('.card-body').append('<p><strong>Skills:</strong> ' + data.skills + '</p>');
+                jobs_card.find('.card.mb-3.ml-3').find('.card-body').append('<p><strong>Description:</strong> ' + data.description + '</p>');
 
-    function showError(error) {
-        switch (error.code) {
-            case error.PERMISSION_DENIED:
-                document.getElementById("demo").innerHTML = "User denied the request for Geolocation.";
-                break;
-            case error.POSITION_UNAVAILABLE:
-                document.getElementById("demo").innerHTML = "Location information is unavailable.";
-                break;
-            case error.TIMEOUT:
-                document.getElementById("demo").innerHTML = "The request to get user location timed out.";
-                break;
-            case error.UNKNOWN_ERROR:
-                document.getElementById("demo").innerHTML = "An unknown error occurred.";
-                break;
-        }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
     }
 </script>
 </body>

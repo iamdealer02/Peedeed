@@ -9,6 +9,7 @@ from flask_caching import Cache
 import logging
 import asyncio
 import httpx
+from insert_jobs import get_jobs, get_job
 
 
 app = Flask(__name__)
@@ -154,9 +155,15 @@ def home():
 async def homepage():
     return render_template('index.html')
 
+@app.route('/login_admin', methods=['GET', 'POST'])
+def login_admin():
+    return render_template('login_admin.html')
+
 @app.route('/joblisting', methods=['GET', 'POST'])
 @login_required
 async def job_listing():
+    jobs_db = get_jobs()
+    print(jobs_db)
     api_endpoint = [
         'https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=ccf89480&app_key=3e60dc4d7e57b3d23b276036be975e66',
         'https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=ccf89480&app_key=3e60dc4d7e57b3d23b276036be975e66',
@@ -173,7 +180,7 @@ async def job_listing():
     data = jsonify(processed_data).json
     jobs= data
     processed_data_len = len(processed_data)
-    return render_template('job_listing.html', jobs=jobs, length= processed_data_len)
+    return render_template('job_listing.html', jobs=jobs, length= processed_data_len, jobs_db = jobs_db)
     return jobs
 
 # @app.route('/info/<job_id>', methods=['GET', 'POST'])
@@ -207,6 +214,17 @@ def jobfilter():
     country = request.form.get('country')
     print(title, country)
     return render_template('index.html')
+
+@app.route('/jobdetails', methods=['POST'])
+@login_required
+def jobdetails():
+    job_id = request.form.get('id')
+    print(job_id)
+    # get job details from mongodb 
+    jobdetails = get_job(job_id)
+    print(jobdetails)
+    return {'data':jobdetails}
+
 
 @app.route('/logout')
 def logout():
